@@ -37,6 +37,24 @@ export type ProposalStatus = (typeof PROPOSAL_STATUSES)[number];
 export const DELIVERY_HEALTH = ["on_track", "at_risk", "blocked", "delivered"] as const;
 export type DeliveryHealth = (typeof DELIVERY_HEALTH)[number];
 
+/**
+ * Production-day status. Not a lunarcore-mcp enum yet.
+ * A BFF can map ClickUp task statuses onto these four.
+ */
+export const SHOOT_STATUSES = ["confirmed", "hold", "wrapped", "cancelled"] as const;
+export type ShootStatus = (typeof SHOOT_STATUSES)[number];
+
+/** Schedule windows the console asks for. The bridge receives concrete dates. */
+export const SHOOT_WINDOWS = ["this_week", "upcoming", "past"] as const;
+export type ShootWindow = (typeof SHOOT_WINDOWS)[number];
+
+/**
+ * Review state stored on the studio record.
+ * Frame.io is not queried. The link is metadata.
+ */
+export const REVIEW_STATUSES = ["in_review", "approved", "changes_requested", "waiting"] as const;
+export type ReviewStatus = (typeof REVIEW_STATUSES)[number];
+
 export interface Contact {
   name?: string;
   email?: string;
@@ -131,6 +149,50 @@ export interface Member {
   email: string;
   role: string;
   active: boolean;
+}
+
+/**
+ * One production day. Dates are UTC calendar days (`YYYY-MM-DD`), matching
+ * the rest of the console. `callTime` and `wrapTime` are Philippine
+ * wall-clock times (`HH:mm`), not instants.
+ *
+ * lunarcore-mcp does not ship a shoot tool yet. This is the read shape a
+ * BFF should return, whether it serves the memory seed or projects a
+ * ClickUp task (tag `shoot`, or a task on a shoot list) into these fields.
+ * Location and call time have no native ClickUp columns — custom fields,
+ * or the task description, until the MCP adapter grows them.
+ */
+export interface Shoot {
+  id: string;
+  clientId: string;
+  projectId: string;
+  title: string;
+  date: string;
+  callTime: string;
+  wrapTime?: string;
+  location: string;
+  crewLeadId?: string;
+  crewCount: number;
+  status: ShootStatus;
+  crewNotes?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/**
+ * A Frame.io project or review link kept on the studio record.
+ * `frameUrl` is an https URL. This app does not take a Frame.io token.
+ */
+export interface Review {
+  id: string;
+  clientId: string;
+  projectId: string;
+  title: string;
+  frameUrl: string;
+  status: ReviewStatus;
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface Page<T> {
@@ -250,6 +312,26 @@ export interface SearchInput {
   limit?: number;
 }
 
+export interface ListShootsInput {
+  clientId?: string;
+  projectId?: string;
+  status?: ShootStatus;
+  /** Inclusive UTC day. */
+  from?: string;
+  /** Inclusive UTC day. */
+  to?: string;
+  query?: string;
+  limit?: number;
+}
+
+export interface ListReviewsInput {
+  clientId?: string;
+  projectId?: string;
+  status?: ReviewStatus;
+  query?: string;
+  limit?: number;
+}
+
 /**
  * Read port for the console. Method payloads match lunarcore-mcp tool data.
  * Writes stay on the MCP server.
@@ -270,4 +352,8 @@ export interface StudioClient {
   pipelineSummary(): Promise<PipelineView>;
   listMembers(): Promise<Page<Member>>;
   search(input: SearchInput): Promise<Page<SearchHit>>;
+  listShoots(input?: ListShootsInput): Promise<Page<Shoot>>;
+  getShoot(id: string): Promise<Shoot>;
+  listReviews(input?: ListReviewsInput): Promise<Page<Review>>;
+  getReview(id: string): Promise<Review>;
 }

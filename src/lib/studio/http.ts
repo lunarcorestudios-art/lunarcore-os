@@ -8,13 +8,17 @@ import type {
   DeliveryStatus,
   ListClientsInput,
   ListProjectsInput,
+  ListReviewsInput,
+  ListShootsInput,
   ListTasksInput,
   Milestone,
   Page,
   PipelineSummary,
   Project,
+  Review,
   SearchHit,
   SearchInput,
+  Shoot,
   StudioClient,
   Task,
   TaskRecord,
@@ -150,6 +154,28 @@ export function createHttpStudioClient(env: NodeJS.ProcessEnv = process.env): St
     },
     async search(input: SearchInput) {
       return request<Page<SearchHit>>(`/v1/search${queryString({ query: input.query, limit: input.limit })}`);
+    },
+    async listShoots(input: ListShootsInput = {}) {
+      return request<Page<Shoot>>(`/v1/shoots${queryString(input)}`);
+    },
+    async getShoot(id: string) {
+      try {
+        const data = await request<{ shoot: Shoot }>(`/v1/shoots/${encodeURIComponent(id)}`);
+        return data.shoot;
+      } catch (error) {
+        rethrowNotFound(error);
+      }
+    },
+    async listReviews(input: ListReviewsInput = {}) {
+      return request<Page<Review>>(`/v1/reviews${queryString(input)}`);
+    },
+    async getReview(id: string) {
+      try {
+        const data = await request<{ review: Review }>(`/v1/reviews/${encodeURIComponent(id)}`);
+        return data.review;
+      } catch (error) {
+        rethrowNotFound(error);
+      }
     },
   };
 

@@ -83,7 +83,7 @@ export function SearchDialog() {
           <div className="border-b border-border px-4 pt-4 pb-3">
             <DialogTitle className="sr-only">Search the studio</DialogTitle>
             <DialogDescription className="mb-3 text-xs tracking-[0.14em] uppercase">
-              Search stub · clients, projects, tasks
+              Search · clients, projects, tasks, shoots, reviews
             </DialogDescription>
             <label htmlFor={inputId} className="sr-only">
               Search query

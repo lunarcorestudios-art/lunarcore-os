@@ -3,6 +3,9 @@ import type {
   DeliveryHealth,
   MilestoneStatus,
   ProjectStatus,
+  ReviewStatus,
+  ShootStatus,
+  ShootWindow,
   TaskPriority,
   TaskStatus,
 } from "@/lib/studio/types";
@@ -42,6 +45,26 @@ export const MILESTONE_STATUS_LABEL: Record<MilestoneStatus, string> = {
   in_progress: "In progress",
   done: "Done",
   blocked: "Blocked",
+};
+
+export const SHOOT_STATUS_LABEL: Record<ShootStatus, string> = {
+  confirmed: "Confirmed",
+  hold: "Hold",
+  wrapped: "Wrapped",
+  cancelled: "Cancelled",
+};
+
+export const SHOOT_WINDOW_LABEL: Record<ShootWindow, string> = {
+  this_week: "This week",
+  upcoming: "Upcoming",
+  past: "Past",
+};
+
+export const REVIEW_STATUS_LABEL: Record<ReviewStatus, string> = {
+  in_review: "In review",
+  approved: "Approved",
+  changes_requested: "Changes requested",
+  waiting: "Waiting",
 };
 
 export const PRIORITY_LABEL: Record<TaskPriority, string> = {

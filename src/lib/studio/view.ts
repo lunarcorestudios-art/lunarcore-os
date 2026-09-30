@@ -1,19 +1,27 @@
 import "server-only";
 
-import { compareHealth, worstHealth } from "@/lib/format";
+import { compareHealth, todayUtc, worstHealth } from "@/lib/format";
 import { getStudioClient } from "@/lib/studio/client";
-import { isClientStatus } from "@/lib/studio/mock";
-import type {
-  Actor,
-  Client,
-  ClientStatus,
-  DeliveryHealth,
-  DeliveryStatus,
-  Member,
-  Milestone,
-  PipelineView,
-  TaskRecord,
-  WorkspaceContext,
+import { StudioNotFound } from "@/lib/studio/errors";
+import { isClientStatus, isReviewStatus } from "@/lib/studio/mock";
+import { isShootWindow, rangeForShootWindow, weekDates } from "@/lib/studio/schedule";
+import {
+  REVIEW_STATUSES,
+  type Actor,
+  type Client,
+  type ClientStatus,
+  type DeliveryHealth,
+  type DeliveryStatus,
+  type Member,
+  type Milestone,
+  type PipelineView,
+  type Project,
+  type Review,
+  type ReviewStatus,
+  type Shoot,
+  type ShootWindow,
+  type TaskRecord,
+  type WorkspaceContext,
 } from "@/lib/studio/types";
 
 export interface ShellModel {
@@ -64,6 +72,43 @@ export interface DeliveryDetailModel {
   tasks: Array<TaskRecord & { assigneeName: string | null }>;
   commentsByAuthor: Map<string, string>;
   members: Member[];
+}
+
+export type ScheduleView = "week" | "list";
+
+export interface ShootRow {
+  shoot: Shoot;
+  clientName: string;
+  projectName: string;
+  leadName: string | null;
+}
+
+export interface ShootBoardModel {
+  window: ShootWindow;
+  view: ScheduleView;
+  clientId?: string;
+  clients: Client[];
+  rows: ShootRow[];
+  week: string[];
+  today: string;
+  totalInStudio: number;
+  selected: ShootRow | null;
+  missingShoot: boolean;
+}
+
+export interface ReviewRow {
+  review: Review;
+  clientName: string;
+  projectName: string;
+}
+
+export interface ReviewBoardModel {
+  status?: ReviewStatus;
+  clientId?: string;
+  clients: Client[];
+  rows: ReviewRow[];
+  counts: Record<ReviewStatus, number>;
+  totalInStudio: number;
 }
 
 export async function loadShell(): Promise<ShellModel> {
@@ -171,6 +216,113 @@ export async function loadDeliveryDetail(id: string): Promise<DeliveryDetailMode
     commentsByAuthor: names,
     members: members.items,
   };
+}
+
+export async function loadShootBoard(input: {
+  window?: string;
+  clientId?: string;
+  view?: string;
+  shootId?: string;
+}): Promise<ShootBoardModel> {
+  const studio = await getStudioClient();
+  const today = todayUtc();
+  const window = isShootWindow(input.window) ? input.window : "this_week";
+  const view = resolveScheduleView(input.view, window);
+  const range = rangeForShootWindow(window, today);
+  const clients = await studio.listClients({ limit: 200 });
+  const requested = input.clientId?.trim() || undefined;
+  const clientId = requested && clients.items.some((client) => client.id === requested) ? requested : undefined;
+
+  const [everyone, page, projects, members] = await Promise.all([
+    studio.listShoots({ limit: 200 }),
+    studio.listShoots({ ...range, clientId, limit: 200 }),
+    studio.listProjects({ limit: 200 }),
+    studio.listMembers(),
+  ]);
+
+  const rows = page.items.map((shoot) => toShootRow(shoot, clients.items, projects.items, members.items));
+  if (window === "past") {
+    rows.sort((a, b) => b.shoot.date.localeCompare(a.shoot.date) || b.shoot.callTime.localeCompare(a.shoot.callTime));
+  }
+
+  const clientIds = new Set(everyone.items.map((shoot) => shoot.clientId));
+  let selected: ShootRow | null = null;
+  let missingShoot = false;
+  if (input.shootId) {
+    try {
+      const shoot = await studio.getShoot(input.shootId);
+      selected = toShootRow(shoot, clients.items, projects.items, members.items);
+    } catch (error) {
+      if (!(error instanceof StudioNotFound)) throw error;
+      missingShoot = true;
+    }
+  }
+
+  return {
+    window,
+    view,
+    clientId,
+    clients: clients.items
+      .filter((client) => clientIds.has(client.id))
+      .sort((a, b) => a.name.localeCompare(b.name)),
+    rows,
+    week: weekDates(today),
+    today,
+    totalInStudio: everyone.total,
+    selected,
+    missingShoot,
+  };
+}
+
+export async function loadReviewBoard(input: { status?: string; clientId?: string }): Promise<ReviewBoardModel> {
+  const studio = await getStudioClient();
+  const status = isReviewStatus(input.status) ? input.status : undefined;
+  const clients = await studio.listClients({ limit: 200 });
+  const requested = input.clientId?.trim() || undefined;
+  const clientId = requested && clients.items.some((client) => client.id === requested) ? requested : undefined;
+
+  const [everyone, page, projects] = await Promise.all([
+    studio.listReviews({ limit: 200 }),
+    studio.listReviews({ clientId, status, limit: 200 }),
+    studio.listProjects({ limit: 200 }),
+  ]);
+  const scoped = clientId ? everyone.items.filter((review) => review.clientId === clientId) : everyone.items;
+  const counts = Object.fromEntries(REVIEW_STATUSES.map((item) => [item, 0])) as Record<ReviewStatus, number>;
+  for (const review of scoped) counts[review.status] += 1;
+  const clientIds = new Set(everyone.items.map((review) => review.clientId));
+
+  return {
+    status,
+    clientId,
+    clients: clients.items
+      .filter((client) => clientIds.has(client.id))
+      .sort((a, b) => a.name.localeCompare(b.name)),
+    rows: page.items.map((review) => toReviewRow(review, clients.items, projects.items)),
+    counts,
+    totalInStudio: everyone.total,
+  };
+}
+
+function toShootRow(shoot: Shoot, clients: Client[], projects: Project[], members: Member[]): ShootRow {
+  return {
+    shoot,
+    clientName: clients.find((client) => client.id === shoot.clientId)?.name ?? "Unknown client",
+    projectName: projects.find((project) => project.id === shoot.projectId)?.name ?? "Unknown project",
+    leadName: members.find((member) => member.id === shoot.crewLeadId)?.name ?? null,
+  };
+}
+
+function toReviewRow(review: Review, clients: Client[], projects: Project[]): ReviewRow {
+  return {
+    review,
+    clientName: clients.find((client) => client.id === review.clientId)?.name ?? "Unknown client",
+    projectName: projects.find((project) => project.id === review.projectId)?.name ?? "Unknown project",
+  };
+}
+
+function resolveScheduleView(view: string | undefined, window: ShootWindow): ScheduleView {
+  if (view === "week" || view === "list") return view;
+  return window === "this_week" ? "week" : "list";
 }
 
 function clientRows(clients: Client[], deliveries: DeliveryStatus[]): ClientRow[] {

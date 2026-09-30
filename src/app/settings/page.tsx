@@ -15,9 +15,9 @@ const PROFILE = [
 ] as const;
 
 const INTEGRATIONS = [
-  { name: "ClickUp", note: "Shoot schedules and the production list." },
+  { name: "ClickUp", note: "Shoot days can be projected from tasks by the studio bridge. This app does not hold a token." },
   { name: "GoHighLevel", note: "Pipeline, before a lead becomes Client Work." },
-  { name: "Frame.io", note: "Review links on a client and a project." },
+  { name: "Frame.io", note: "Review rows store a project link. This app does not call Frame.io." },
   { name: "QuickBooks", note: "Quotes, invoices, and payments." },
 ] as const;
 

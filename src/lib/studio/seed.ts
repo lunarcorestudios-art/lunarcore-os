@@ -5,6 +5,9 @@ import type {
   Milestone,
   Project,
   Proposal,
+  Review,
+  Shoot,
+  ShootStatus,
   Task,
   TaskComment,
 } from "@/lib/studio/types";
@@ -18,6 +21,8 @@ export interface StudioSeed {
   comments: TaskComment[];
   leads: Lead[];
   proposals: Proposal[];
+  shoots: Shoot[];
+  reviews: Review[];
 }
 
 function day(offset: number, now: Date): string {
@@ -28,6 +33,13 @@ function day(offset: number, now: Date): string {
 function iso(offset: number, hour: number, now: Date): string {
   const utc = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + offset, hour, 0, 0);
   return new Date(utc).toISOString();
+}
+
+/** Offset from today back to Monday, in UTC calendar days. */
+function mondayOffset(now: Date): number {
+  const dow = now.getUTCDay();
+  const fromMonday = dow === 0 ? 6 : dow - 1;
+  return -fromMonday;
 }
 
 /**
@@ -802,5 +814,288 @@ export function createSeed(now = new Date()): StudioSeed {
     },
   ];
 
-  return { members, clients, projects, milestones, tasks, comments, leads, proposals };
+  const today = day(0, now);
+  const mon = mondayOffset(now);
+
+  function onWeekday(weekday: number): string {
+    return day(mon + weekday, now);
+  }
+
+  function shootStatus(date: string, intent: "confirmed" | "hold" | "cancelled"): ShootStatus {
+    if (intent === "cancelled") return "cancelled";
+    if (date < today) return "wrapped";
+    return intent;
+  }
+
+  const moriDate = onWeekday(-12);
+  const coffeeDate = onWeekday(-8);
+  const banwaRitualDate = onWeekday(-4);
+  const kendiDate = onWeekday(0);
+  const banwaStillsDate = onWeekday(1);
+  const crazyDate = onWeekday(2);
+  const fivestarDate = onWeekday(3);
+  const kobelcoDate = onWeekday(4);
+  const bpDate = onWeekday(5);
+  const visaDate = onWeekday(8);
+  const kobelcoStillsDate = onWeekday(11);
+
+  const shoots: Shoot[] = [
+    {
+      id: "sht_mori_menu",
+      clientId: "cli_mori",
+      projectId: "prj_mori_menu",
+      title: "Seasonal menu pickup",
+      date: moriDate,
+      callTime: "10:00",
+      wrapTime: "15:00",
+      location: "Mori & Mill, Salcedo Village, Makati",
+      crewLeadId: "mem_iris",
+      crewCount: 3,
+      status: shootStatus(moriDate, "confirmed"),
+      crewNotes: "Dining room stays as it serves. No styling beyond the plates already on the pass.",
+      createdAt: iso(mon - 20, 9, now),
+      updatedAt: iso(mon - 12, 16, now),
+    },
+    {
+      id: "sht_coffee_menu",
+      clientId: "cli_coffee",
+      projectId: "prj_coffee_menu",
+      title: "Menu board stills",
+      date: coffeeDate,
+      callTime: "08:30",
+      location: "Coffee Dome, Kapitolyo, Pasig",
+      crewLeadId: "mem_julian",
+      crewCount: 2,
+      status: "cancelled",
+      crewNotes: "Paused with the client. Do not rebook until the menu board is signed.",
+      createdAt: iso(mon - 14, 9, now),
+      updatedAt: iso(mon - 8, 9, now),
+    },
+    {
+      id: "sht_banwa_ritual",
+      clientId: "cli_banwa",
+      projectId: "prj_banwa_film",
+      title: "Water ritual",
+      date: banwaRitualDate,
+      callTime: "07:30",
+      wrapTime: "13:00",
+      location: "Banwa Wellness Spa, Poblacion, Makati",
+      crewLeadId: "mem_iris",
+      crewCount: 4,
+      status: shootStatus(banwaRitualDate, "confirmed"),
+      crewNotes: "Quiet set. Natural light only. No voiceover, no playback in the treatment room.",
+      createdAt: iso(mon - 10, 9, now),
+      updatedAt: iso(mon - 4, 14, now),
+    },
+    {
+      id: "sht_kendi_portraits",
+      clientId: "cli_kendi",
+      projectId: "prj_kendi_launch",
+      title: "Opening portraits",
+      date: kendiDate,
+      callTime: "13:00",
+      wrapTime: "17:30",
+      location: "Kendi Beauty Lounge, BGC, Taguig",
+      crewLeadId: "mem_iris",
+      crewCount: 4,
+      status: shootStatus(kendiDate, "confirmed"),
+      crewNotes: "Skin stays textured. Cleanup later is dust and a stray hair, not a beauty pass.",
+      createdAt: iso(mon - 6, 9, now),
+      updatedAt: iso(mon, 9, now),
+    },
+    {
+      id: "sht_banwa_stills",
+      clientId: "cli_banwa",
+      projectId: "prj_banwa_content",
+      title: "Treatment room stills",
+      date: banwaStillsDate,
+      callTime: "08:00",
+      wrapTime: "12:00",
+      location: "Banwa Wellness Spa, Poblacion, Makati",
+      crewLeadId: "mem_iris",
+      crewCount: 3,
+      status: shootStatus(banwaStillsDate, "confirmed"),
+      crewNotes: "This week's always-on set. Stone, water, and the linen they actually use.",
+      createdAt: iso(mon - 3, 9, now),
+      updatedAt: iso(mon + 1, 8, now),
+    },
+    {
+      id: "sht_crazy_pickup",
+      clientId: "cli_crazy",
+      projectId: "prj_crazy_spots",
+      title: "Hero plate pickup",
+      date: crazyDate,
+      callTime: "11:00",
+      wrapTime: "15:00",
+      location: "Crazy Curry, Tomas Morato, Quezon City",
+      crewLeadId: "mem_julian",
+      crewCount: 4,
+      status: shootStatus(crazyDate, "confirmed"),
+      crewNotes: "Heat and color first. Shoot the curry before the lunch rush fills the room.",
+      createdAt: iso(mon - 2, 9, now),
+      updatedAt: iso(mon + 2, 10, now),
+    },
+    {
+      id: "sht_fivestar_dawn",
+      clientId: "cli_fivestar",
+      projectId: "prj_fivestar_films",
+      title: "Dawn exterior, villa one",
+      date: fivestarDate,
+      callTime: "05:15",
+      wrapTime: "09:30",
+      location: "Five Star Stays, Tagaytay Ridge",
+      crewLeadId: "mem_julian",
+      crewCount: 6,
+      status: shootStatus(fivestarDate, "confirmed"),
+      crewNotes: "Van leaves BGC at 03:30. Interiors only if the owner is off the property.",
+      createdAt: iso(mon - 2, 11, now),
+      updatedAt: iso(mon + 3, 8, now),
+    },
+    {
+      id: "sht_kobelco_yard",
+      clientId: "cli_kobelco",
+      projectId: "prj_kobelco_film",
+      title: "Excavator line, yard",
+      date: kobelcoDate,
+      callTime: "07:00",
+      wrapTime: "16:00",
+      location: "Kobelco yard, Calamba, Laguna",
+      crewLeadId: "mem_julian",
+      crewCount: 7,
+      status: shootStatus(kobelcoDate, "hold"),
+      crewNotes: "On hold for a named site host and the safety induction. Do not roll until access is confirmed.",
+      createdAt: iso(mon - 5, 9, now),
+      updatedAt: iso(0, 8, now),
+    },
+    {
+      id: "sht_bp_ads",
+      clientId: "cli_bp",
+      projectId: "prj_bp_ads",
+      title: "Standing offer, kitchen",
+      date: bpDate,
+      callTime: "09:00",
+      wrapTime: "13:00",
+      location: "BP Boiling Crabs & Shrimps, Kapitolyo, Pasig",
+      crewLeadId: "mem_julian",
+      crewCount: 4,
+      status: shootStatus(bpDate, "confirmed"),
+      crewNotes: "Steam, hands, and the price end card. Weekend service stays open around the set.",
+      createdAt: iso(mon - 1, 9, now),
+      updatedAt: iso(mon + 5, 9, now),
+    },
+    {
+      id: "sht_visa_interview",
+      clientId: "cli_visa_au",
+      projectId: "prj_visa_explainer",
+      title: "Partner interview",
+      date: visaDate,
+      callTime: "09:30",
+      wrapTime: "13:00",
+      location: "Visa Alliance, BGC, Taguig",
+      crewLeadId: "mem_julian",
+      crewCount: 4,
+      status: shootStatus(visaDate, "confirmed"),
+      crewNotes: "Plain language on camera. No legal claims until the marked-up script is back.",
+      createdAt: iso(-4, 9, now),
+      updatedAt: iso(-1, 11, now),
+    },
+    {
+      id: "sht_kobelco_stills",
+      clientId: "cli_kobelco",
+      projectId: "prj_kobelco_stills",
+      title: "Hero stills, studio",
+      date: kobelcoStillsDate,
+      callTime: "10:00",
+      wrapTime: "18:00",
+      location: "Lunarcore studio, Poblacion, Makati",
+      crewLeadId: "mem_iris",
+      crewCount: 3,
+      status: shootStatus(kobelcoStillsDate, "confirmed"),
+      crewNotes: "Neutral ground. Detail crops for the catalogue after the hero.",
+      createdAt: iso(-6, 9, now),
+      updatedAt: iso(-2, 9, now),
+    },
+  ];
+
+  const reviews: Review[] = [
+    {
+      id: "rev_banwa_ritual",
+      clientId: "cli_banwa",
+      projectId: "prj_banwa_film",
+      title: "Ritual film series",
+      frameUrl: "https://next.frame.io/reviews/banwa-ritual-series",
+      status: "in_review",
+      notes: "Rough cut v3. The water grade is the open note.",
+      createdAt: iso(-6, 9, now),
+      updatedAt: iso(-1, 16, now),
+    },
+    {
+      id: "rev_crazy_spots",
+      clientId: "cli_crazy",
+      projectId: "prj_crazy_spots",
+      title: "Brand spots",
+      frameUrl: "https://next.frame.io/reviews/crazy-curry-spots",
+      status: "changes_requested",
+      notes: "More heat in the first second, and hold the offer longer.",
+      createdAt: iso(-5, 12, now),
+      updatedAt: iso(-1, 9, now),
+    },
+    {
+      id: "rev_visa_explainer",
+      clientId: "cli_visa_au",
+      projectId: "prj_visa_explainer",
+      title: "Partner explainer",
+      frameUrl: "https://next.frame.io/reviews/visa-alliance-explainer",
+      status: "waiting",
+      notes: "Link is up. Review waits on the marked-up script from legal.",
+      createdAt: iso(-7, 9, now),
+      updatedAt: iso(-1, 11, now),
+    },
+    {
+      id: "rev_bp_promo",
+      clientId: "cli_bp",
+      projectId: "prj_bp_promo",
+      title: "Weekend boil promo",
+      frameUrl: "https://next.frame.io/reviews/bp-weekend-boil",
+      status: "in_review",
+      notes: "15s is in the review. The 6s follows the price end card.",
+      createdAt: iso(-3, 9, now),
+      updatedAt: iso(-2, 15, now),
+    },
+    {
+      id: "rev_mori_menu",
+      clientId: "cli_mori",
+      projectId: "prj_mori_menu",
+      title: "Seasonal menu film",
+      frameUrl: "https://next.frame.io/reviews/mori-seasonal-menu",
+      status: "approved",
+      notes: "Approved with the delivery. Kept here as the record of the link.",
+      createdAt: iso(-20, 9, now),
+      updatedAt: iso(-6, 9, now),
+    },
+    {
+      id: "rev_kendi_launch",
+      clientId: "cli_kendi",
+      projectId: "prj_kendi_launch",
+      title: "Lounge launch",
+      frameUrl: "https://next.frame.io/project/kendi-lounge-launch",
+      status: "waiting",
+      notes: "Project link only. Portraits are not in the review yet.",
+      createdAt: iso(-4, 9, now),
+      updatedAt: iso(-3, 13, now),
+    },
+    {
+      id: "rev_kobelco_stills",
+      clientId: "cli_kobelco",
+      projectId: "prj_kobelco_stills",
+      title: "Product stills",
+      frameUrl: "https://next.frame.io/project/kobelco-product-stills",
+      status: "waiting",
+      notes: "Selects go up after the studio day. The yard film is still on hold.",
+      createdAt: iso(-5, 9, now),
+      updatedAt: iso(-2, 9, now),
+    },
+  ];
+
+  return { members, clients, projects, milestones, tasks, comments, leads, proposals, shoots, reviews };
 }
