@@ -37,10 +37,10 @@ export default function SettingsPage() {
       adapter={item.adapter}
     >
       <section>
-        <h2 className="mb-3 text-[0.68rem] font-medium tracking-[0.18em] text-muted-foreground uppercase">
+        <h2 className="mb-3 text-sm font-semibold tracking-tight text-foreground">
           Studio profile
         </h2>
-        <dl className="divide-y divide-border overflow-hidden rounded-lg border border-border bg-card">
+        <dl className="divide-y divide-border overflow-hidden rounded-lg border border-border bg-card shadow-[var(--shadow)]">
           {PROFILE.map((row) => (
             <div key={row.label} className="grid gap-1 px-4 py-3 sm:grid-cols-[180px_minmax(0,1fr)] sm:items-baseline">
               <dt className="text-sm">{row.label}</dt>
@@ -51,17 +51,17 @@ export default function SettingsPage() {
       </section>
 
       <section className="mt-10">
-        <h2 className="mb-3 text-[0.68rem] font-medium tracking-[0.18em] text-muted-foreground uppercase">
+        <h2 className="mb-3 text-sm font-semibold tracking-tight text-foreground">
           Integrations
         </h2>
-        <ul className="divide-y divide-border overflow-hidden rounded-lg border border-border bg-card">
+        <ul className="divide-y divide-border overflow-hidden rounded-lg border border-border bg-card shadow-[var(--shadow)]">
           {INTEGRATIONS.map((integration) => (
             <li key={integration.name} className="flex items-baseline justify-between gap-4 px-4 py-3">
               <span className="min-w-0">
                 <span className="block text-sm">{integration.name}</span>
                 <span className="mt-1 block text-sm text-muted-foreground">{integration.note}</span>
               </span>
-              <span className="shrink-0 text-[0.68rem] font-medium tracking-[0.14em] text-muted-foreground uppercase">
+              <span className="shrink-0 text-xs font-medium text-muted-foreground">
                 Not connected
               </span>
             </li>
@@ -76,13 +76,13 @@ export default function SettingsPage() {
       </section>
 
       <section className="mt-10">
-        <h2 className="mb-3 text-[0.68rem] font-medium tracking-[0.18em] text-muted-foreground uppercase">
+        <h2 className="mb-3 text-sm font-semibold tracking-tight text-foreground">
           Portal apps (separate entry)
         </h2>
-        <ul className="divide-y divide-border overflow-hidden rounded-lg border border-border bg-card">
+        <ul className="divide-y divide-border overflow-hidden rounded-lg border border-border bg-card shadow-[var(--shadow)]">
           {PORTALS.map((portal) => (
             <li key={portal.href}>
-              <Link href={portal.href} className="block px-4 py-3 hover:bg-muted/60">
+              <Link href={portal.href} className="block px-4 py-3 transition-colors hover:bg-tint-soft">
                 <span className="block text-sm">{portal.label}</span>
                 <span className="mt-1 block text-sm text-muted-foreground">{portal.note}</span>
               </Link>

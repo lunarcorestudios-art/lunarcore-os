@@ -33,7 +33,7 @@ export default function PipelinePage() {
         />
       </div>
       <p className="mt-4">
-        <Link href="/" className="text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline">
+        <Link href="/" className="text-sm font-medium text-accent underline-offset-4 hover:underline">
           Seed pipeline on the dashboard
         </Link>
       </p>

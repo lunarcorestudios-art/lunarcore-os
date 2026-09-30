@@ -11,7 +11,7 @@ npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000). The console is dark by default. The header toggles a light theme.
+Open [http://localhost:3000](http://localhost:3000). The console opens in Direction A, Daylight. The header switches to Direction B, Charcoal Studio. That choice is stored in `localStorage` under `lunarcore-theme`.
 
 ```bash
 npm run lint

@@ -10,10 +10,12 @@ export function StatusBadge({
   kind: "client" | "project";
 }) {
   const label = kind === "client" ? CLIENT_STATUS_LABEL[status as ClientStatus] : PROJECT_STATUS_LABEL[status as ProjectStatus];
+  const active = status === "active";
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full border border-border bg-muted px-2.5 py-1 text-[0.7rem] font-medium tracking-wide text-muted-foreground uppercase",
+        "inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium",
+        active ? "bg-accent text-accent-foreground" : "bg-muted text-muted-foreground",
       )}
     >
       {label}

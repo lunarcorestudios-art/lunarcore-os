@@ -4,11 +4,11 @@ import { EmptyState } from "@/components/studio/empty-state";
 import { HealthBadge } from "@/components/studio/health-badge";
 import { PageHeader } from "@/components/studio/page-header";
 import { StatusBadge } from "@/components/studio/status-badge";
+import { FilterPill } from "@/components/ui/filter-pill";
 import { Input } from "@/components/ui/input";
 import { CLIENT_STATUSES } from "@/lib/studio/types";
 import { CLIENT_STATUS_LABEL } from "@/lib/studio/labels";
 import { loadDirectory } from "@/lib/studio/view";
-import { cn } from "@/lib/utils";
 
 export const metadata = { title: "Clients" };
 
@@ -31,13 +31,13 @@ export default async function ClientsPage({
       />
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <nav aria-label="Client status" className="flex flex-wrap gap-1.5">
-          <FilterLink href={filterHref(undefined, query)} active={!directory.status}>
+          <FilterPill href={filterHref(undefined, query)} active={!directory.status}>
             All
-          </FilterLink>
+          </FilterPill>
           {CLIENT_STATUSES.map((item) => (
-            <FilterLink key={item} href={filterHref(item, query)} active={directory.status === item}>
+            <FilterPill key={item} href={filterHref(item, query)} active={directory.status === item}>
               {CLIENT_STATUS_LABEL[item]}
-            </FilterLink>
+            </FilterPill>
           ))}
         </nav>
         <form action="/clients" className="sm:w-64">
@@ -48,15 +48,15 @@ export default async function ClientsPage({
       {directory.rows.length === 0 ? (
         <EmptyState title="No clients in this cut." body="Try another status, or clear the filter." />
       ) : (
-        <ul className="divide-y divide-border overflow-hidden rounded-lg border border-border bg-card">
+        <ul className="divide-y divide-border overflow-hidden rounded-lg border border-border bg-card shadow-[var(--shadow)]">
           {directory.rows.map((row) => (
             <li key={row.client.id}>
               <Link
                 href={`/clients/${row.client.id}`}
-                className="grid gap-2 px-4 py-4 hover:bg-muted/60 sm:grid-cols-[minmax(0,1.5fr)_140px_110px_120px] sm:items-center sm:gap-4"
+                className="grid gap-2 px-4 py-4 transition-colors hover:bg-tint-soft sm:grid-cols-[minmax(0,1.5fr)_140px_110px_120px] sm:items-center sm:gap-4"
               >
                 <span className="min-w-0">
-                  <span className="block truncate font-display text-2xl leading-tight tracking-tight">
+                  <span className="block truncate font-display text-xl leading-tight font-semibold tracking-tight">
                     {row.client.name}
                   </span>
                   <span className="mt-1 block text-sm text-muted-foreground sm:hidden">
@@ -79,21 +79,6 @@ export default async function ClientsPage({
       )}
       <p className="mt-3 text-xs text-muted-foreground tabular-nums">{directory.total} in this view</p>
     </>
-  );
-}
-
-function FilterLink({ href, active, children }: { href: string; active: boolean; children: React.ReactNode }) {
-  return (
-    <Link
-      href={href}
-      aria-current={active ? "page" : undefined}
-      className={cn(
-        "rounded-full border px-3 py-1.5 text-xs tracking-wide",
-        active ? "border-foreground bg-foreground text-background" : "border-border text-muted-foreground hover:text-foreground",
-      )}
-    >
-      {children}
-    </Link>
   );
 }
 

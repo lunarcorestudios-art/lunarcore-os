@@ -6,7 +6,7 @@ export default function Loading() {
         <div className="h-12 w-2/3 max-w-md rounded-md bg-muted" />
         <div className="h-4 w-1/2 max-w-sm rounded-full bg-muted" />
       </div>
-      <div className="grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-border sm:grid-cols-4">
+      <div className="grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-border shadow-[var(--shadow)] sm:grid-cols-4">
         {Array.from({ length: 4 }, (_, index) => (
           <div key={index} className="h-28 bg-card" />
         ))}

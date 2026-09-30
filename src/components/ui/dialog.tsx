@@ -21,7 +21,7 @@ function DialogPortal(props: React.ComponentProps<typeof DialogPrimitive.Portal>
 function DialogOverlay({ className, ...props }: React.ComponentProps<typeof DialogPrimitive.Overlay>) {
   return (
     <DialogPrimitive.Overlay
-      className={cn("fixed inset-0 z-50 bg-black/55 backdrop-blur-[2px]", className)}
+      className={cn("fixed inset-0 z-50 bg-[var(--overlay)]", className)}
       {...props}
     />
   );
@@ -37,13 +37,13 @@ function DialogContent({
       <DialogOverlay />
       <DialogPrimitive.Content
         className={cn(
-          "dialog-panel fixed left-1/2 z-50 w-[min(100%-1.5rem,40rem)] -translate-x-1/2 rounded-lg border border-border bg-card text-foreground shadow-[var(--shadow)] outline-none",
+          "dialog-panel fixed top-[12vh] left-1/2 z-50 w-[min(100%-1.5rem,40rem)] -translate-x-1/2 rounded-xl border border-border bg-card text-foreground shadow-[var(--shadow)] outline-none",
           className,
         )}
         {...props}
       >
         {children}
-        <DialogPrimitive.Close className="absolute top-3 right-3 rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-foreground">
+        <DialogPrimitive.Close className="absolute top-3 right-3 rounded-lg p-1 text-muted-foreground transition-colors hover:bg-tint-soft hover:text-foreground">
           <X />
           <span className="sr-only">Close</span>
         </DialogPrimitive.Close>
@@ -53,7 +53,7 @@ function DialogContent({
 }
 
 function DialogTitle({ className, ...props }: React.ComponentProps<typeof DialogPrimitive.Title>) {
-  return <DialogPrimitive.Title className={cn("font-display text-2xl tracking-tight", className)} {...props} />;
+  return <DialogPrimitive.Title className={cn("font-display text-xl font-semibold tracking-tight", className)} {...props} />;
 }
 
 function DialogDescription({

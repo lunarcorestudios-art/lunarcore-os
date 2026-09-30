@@ -35,7 +35,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
   return (
     <>
       <p className="mb-4 text-sm text-muted-foreground">
-        <Link href="/clients" className="hover:text-foreground">
+        <Link href="/clients" className="font-medium text-accent underline-offset-4 hover:underline">
           Clients
         </Link>
       </p>
@@ -48,12 +48,12 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
       {client.primaryContact?.email ? (
         <p className="mb-8 text-sm text-muted-foreground">
           {client.primaryContact.name ? `${client.primaryContact.name} · ` : ""}
-          <a className="underline-offset-4 hover:underline" href={`mailto:${client.primaryContact.email}`}>
+          <a className="font-medium text-accent underline-offset-4 hover:underline" href={`mailto:${client.primaryContact.email}`}>
             {client.primaryContact.email}
           </a>
         </p>
       ) : null}
-      <h2 className="mb-3 text-[0.68rem] font-medium tracking-[0.18em] text-muted-foreground uppercase">Projects</h2>
+      <h2 className="mb-3 text-sm font-semibold tracking-tight text-foreground">Projects</h2>
       {detail.deliveries.length === 0 ? (
         <EmptyState
           title="No projects yet."

@@ -18,10 +18,10 @@ export default function ShootSchedulesPage() {
       purpose="Call times and locations for production days."
       adapter={item.adapter}
     >
-      <ol className="grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-border bg-border sm:grid-cols-4 lg:grid-cols-7">
+      <ol className="grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-border bg-border shadow-[var(--shadow)] sm:grid-cols-4 lg:grid-cols-7">
         {DAYS.map((day) => (
           <li key={day} className="min-h-32 bg-card px-3 py-3">
-            <p className="text-[0.68rem] font-medium tracking-[0.16em] text-muted-foreground uppercase">{day}</p>
+            <p className="text-xs font-medium text-muted-foreground">{day}</p>
             <p className="mt-8 text-sm text-muted-foreground">No call</p>
           </li>
         ))}

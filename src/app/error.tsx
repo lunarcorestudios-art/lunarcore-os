@@ -11,8 +11,8 @@ export default function Error({
 }) {
   return (
     <div className="max-w-lg">
-      <p className="text-[0.68rem] font-medium tracking-[0.18em] text-muted-foreground uppercase">Studio console</p>
-      <h1 className="mt-2 font-display text-4xl tracking-tight">The floor did not load.</h1>
+      <p className="text-xs font-medium text-muted-foreground">Studio console</p>
+      <h1 className="mt-2 font-display text-4xl font-semibold tracking-tight">The floor did not load.</h1>
       <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
         {error.message || "Something went wrong while reading studio data."}
       </p>
