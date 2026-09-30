@@ -31,7 +31,7 @@ export default function StaffPortalPage() {
     <ModuleStub
       kicker={section.label}
       title={item.label}
-      purpose="The crew-facing shell. Sign-in is not gated by role yet."
+      purpose="A separate crew entry, not on the main rail. Sign-in is not gated by role yet."
       adapter={item.adapter}
     >
       <ul className="grid gap-4 lg:grid-cols-3">

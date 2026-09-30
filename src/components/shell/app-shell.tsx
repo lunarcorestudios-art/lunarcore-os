@@ -118,9 +118,11 @@ function NavList({ pathname, onNavigate }: { pathname: string; onNavigate?: () =
     <div className="space-y-6">
       {NAV_SECTIONS.map((section) => (
         <div key={section.id}>
-          <p className="px-3 pb-2 text-[0.68rem] font-medium tracking-[0.18em] text-muted-foreground uppercase">
-            {section.label}
-          </p>
+          {section.label ? (
+            <p className="px-3 pb-2 text-[0.68rem] font-medium tracking-[0.18em] text-muted-foreground uppercase">
+              {section.label}
+            </p>
+          ) : null}
           <ul className="space-y-1">
             {section.items.map((item) => {
               const active = isNavActive(pathname, item.href);

@@ -31,7 +31,7 @@ export default function ClientPortalPage() {
     <ModuleStub
       kicker={section.label}
       title={item.label}
-      purpose="What a client sees of their work. Sign-in is not gated by role yet."
+      purpose="A separate client entry, not on the main rail. Sign-in is not gated by role yet."
       adapter={item.adapter}
     >
       <ul className="grid gap-4 lg:grid-cols-3">
