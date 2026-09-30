@@ -27,7 +27,7 @@ export const metadata: Metadata = {
     default: "Lunarcore OS",
     template: "%s · Lunarcore OS",
   },
-  description: "Internal studio console for Lunarcore Studios. Clients, delivery, and the health of the floor.",
+  description: "Internal studio console for Lunarcore Studios. Clients, delivery, and the rest of the floor.",
 };
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {
