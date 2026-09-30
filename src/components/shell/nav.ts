@@ -2,8 +2,8 @@
  * Primary navigation and the module → adapter map.
  *
  * Live routes read `StudioClient` (in-memory seed, or the HTTP bridge to
- * lunarcore-mcp). Stub routes render empty shells. They do not call
- * ClickUp, Frame.io, GoHighLevel, QuickBooks, or an HRIS.
+ * lunarcore-mcp). Stub routes render empty shells. Nothing in this app
+ * calls ClickUp, Frame.io, GoHighLevel, QuickBooks, or an HRIS.
  *
  * Primary rail (internal Studio OS):
  *
@@ -12,8 +12,8 @@
  * | Home        | /         | Dashboard       | StudioClient       | live   |
  * | Clients     | /clients  | Clients         | StudioClient       | live   |
  * | Production  | /delivery | Delivery        | StudioClient       | live   |
- * | Production  | /shoots   | Shoot Schedules | ClickUp + calendar | stub   |
- * | Production  | /reviews  | Reviews         | Frame.io           | stub   |
+ * | Production  | /shoots   | Shoot Schedules | StudioClient       | live   |
+ * | Production  | /reviews  | Reviews         | StudioClient       | live   |
  * | Pipeline    | /pipeline | Pipeline        | GoHighLevel        | stub   |
  * | Finance     | /finance  | Finance         | QuickBooks         | stub   |
  * | People      | /people   | People          | HRIS               | stub   |
@@ -60,8 +60,8 @@ export const NAV_SECTIONS: readonly NavSection[] = [
     label: "Production",
     items: [
       { href: "/delivery", label: "Delivery", adapter: "StudioClient", status: "live", kicker: "Production" },
-      { href: "/shoots", label: "Shoot Schedules", adapter: "ClickUp + calendar", status: "stub", kicker: "Production" },
-      { href: "/reviews", label: "Reviews", adapter: "Frame.io", status: "stub", kicker: "Production" },
+      { href: "/shoots", label: "Shoot Schedules", adapter: "StudioClient", status: "live", kicker: "Production" },
+      { href: "/reviews", label: "Reviews", adapter: "StudioClient", status: "live", kicker: "Production" },
     ],
   },
   {

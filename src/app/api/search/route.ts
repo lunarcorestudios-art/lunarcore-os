@@ -1,4 +1,6 @@
+import { todayUtc } from "@/lib/format";
 import { getStudioClient } from "@/lib/studio/client";
+import { shootWindowForDate } from "@/lib/studio/schedule";
 import type { SearchHit } from "@/lib/studio/types";
 
 export async function GET(request: Request) {
@@ -27,5 +29,18 @@ async function withHref(
       return { ...hit, href: "/delivery" };
     }
   }
+  if (hit.kind === "shoot") {
+    try {
+      const shoot = await studio.getShoot(hit.id);
+      const window = shootWindowForDate(shoot.date, todayUtc());
+      const params = new URLSearchParams();
+      if (window !== "this_week") params.set("window", window);
+      params.set("shoot", hit.id);
+      return { ...hit, href: `/shoots?${params.toString()}` };
+    } catch {
+      return { ...hit, href: "/shoots" };
+    }
+  }
+  if (hit.kind === "review") return { ...hit, href: `/reviews#${hit.id}` };
   return { ...hit, href: "/" };
 }

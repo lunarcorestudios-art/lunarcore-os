@@ -30,14 +30,18 @@ function DialogOverlay({ className, ...props }: React.ComponentProps<typeof Dial
 function DialogContent({
   className,
   children,
+  variant = "center",
   ...props
-}: React.ComponentProps<typeof DialogPrimitive.Content>) {
+}: React.ComponentProps<typeof DialogPrimitive.Content> & { variant?: "center" | "drawer" }) {
   return (
     <DialogPortal>
       <DialogOverlay />
       <DialogPrimitive.Content
         className={cn(
-          "dialog-panel fixed left-1/2 z-50 w-[min(100%-1.5rem,40rem)] -translate-x-1/2 rounded-lg border border-border bg-card text-foreground shadow-[var(--shadow)] outline-none",
+          "dialog-panel fixed z-50 border border-border bg-card text-foreground shadow-[var(--shadow)] outline-none",
+          variant === "drawer"
+            ? "inset-y-0 right-0 flex h-dvh w-full max-w-md flex-col overflow-y-auto rounded-none border-y-0 border-r-0"
+            : "left-1/2 w-[min(100%-1.5rem,40rem)] -translate-x-1/2 rounded-lg",
           className,
         )}
         {...props}

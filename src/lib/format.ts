@@ -4,16 +4,46 @@ export function todayUtc(now = new Date()): string {
   return now.toISOString().slice(0, 10);
 }
 
-export function formatDay(day: string | undefined): string {
-  if (!day) return "No date";
+export function addDays(day: string, offset: number): string {
   const [year, month, date] = day.split("-").map(Number);
   if (!year || !month || !date) return day;
+  return new Date(Date.UTC(year, month - 1, date + offset)).toISOString().slice(0, 10);
+}
+
+export function formatDay(day: string | undefined): string {
+  if (!day) return "No date";
+  const parsed = parseUtcDay(day);
+  if (!parsed) return day;
   return new Intl.DateTimeFormat("en-GB", {
     day: "numeric",
     month: "short",
     year: "numeric",
     timeZone: "UTC",
-  }).format(new Date(Date.UTC(year, month - 1, date)));
+  }).format(parsed);
+}
+
+export function formatWeekday(day: string): string {
+  const parsed = parseUtcDay(day);
+  if (!parsed) return day;
+  return new Intl.DateTimeFormat("en-GB", { weekday: "short", timeZone: "UTC" }).format(parsed);
+}
+
+export function formatDayOfMonth(day: string): string {
+  const parsed = parseUtcDay(day);
+  if (!parsed) return day;
+  return new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short", timeZone: "UTC" }).format(parsed);
+}
+
+/** Philippine wall-clock label. `time` is `HH:mm` already, not an instant. */
+export function formatCallTime(time: string | undefined): string {
+  if (!time) return "Call time not set";
+  return `${time} PHT`;
+}
+
+function parseUtcDay(day: string): Date | null {
+  const [year, month, date] = day.split("-").map(Number);
+  if (!year || !month || !date) return null;
+  return new Date(Date.UTC(year, month - 1, date));
 }
 
 export function duePhrase(day: string | undefined, today = todayUtc()): string | null {
@@ -52,6 +82,17 @@ export function formatMoney(amount: number, currency: string): string {
     currency,
     maximumFractionDigits: 0,
   }).format(amount);
+}
+
+/** Accept only https links so a bridge cannot inject a script URL into the review board. */
+export function externalHttpsUrl(value: string): string | null {
+  try {
+    const url = new URL(value);
+    if (url.protocol !== "https:") return null;
+    return url.toString();
+  } catch {
+    return null;
+  }
 }
 
 export function initials(name: string): string {

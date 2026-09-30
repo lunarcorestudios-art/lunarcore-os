@@ -1,6 +1,6 @@
 # Lunarcore OS
 
-Internal studio console for [Lunarcore Studios](https://github.com/lunarcorestudios-art). It shows workspace health, clients, and delivery, plus empty shells for the rest of the studio. Live screens read a `StudioClient`. They do not talk to ClickUp. Stub screens do not talk to GoHighLevel, QuickBooks, Frame.io, or an HRIS.
+Internal studio console for [Lunarcore Studios](https://github.com/lunarcorestudios-art). It shows workspace health, clients, delivery, shoot schedules, and Frame.io review links, plus empty shells for the rest of the studio. Live screens read a `StudioClient`. They do not talk to ClickUp or Frame.io. Stub screens do not talk to GoHighLevel, QuickBooks, or an HRIS.
 
 Production data belongs in [lunarcore-mcp](https://github.com/lunarcorestudios-art/lunarcore-mcp), or in a thin BFF in front of it. This web app ships a memory seed so `npm run dev` works with no tokens.
 
@@ -29,8 +29,8 @@ Node.js 20 or newer.
 | `/clients/[id]` | One client and the projects under it |
 | `/delivery` | Projects grouped by `delivery_status` health |
 | `/delivery/[id]` | Milestones, task rollup, and comments for one project |
-| `/shoots` | Shoot schedule shell, under Production. ClickUp and a studio calendar later |
-| `/reviews` | Frame.io review links, under Production |
+| `/shoots` | Shoot schedule for the floor: week calendar, list, and a call sheet. ClickUp tasks can feed this later through the bridge |
+| `/reviews` | Frame.io review links and status, under Production. Links only — no Frame.io sign-in |
 | `/pipeline` | GoHighLevel pipeline shell. The home dashboard still shows the seed pipeline |
 | `/people` | People shell: roster, capacity, and time off. HRIS later. `/hris` redirects here |
 | `/finance` | Finance overview. Tabs for quotes, invoices, and payments |
@@ -41,7 +41,7 @@ Node.js 20 or newer.
 | `/staff` | Staff portal shell. Off the main rail. Role gating comes later |
 | `/portal` | Client portal shell. Off the main rail. Role gating comes later |
 
-The module → adapter map lives in `src/components/shell/nav.ts`. Stub routes render empty states only. This app does not take OAuth or SDK dependencies for those adapters.
+The module → adapter map lives in `src/components/shell/nav.ts`. Stub routes render empty states only. This app does not take OAuth or SDK dependencies for those adapters. Shoot schedules and reviews are live on the seed, and still do not call ClickUp or Frame.io.
 
 The shell is the sidebar, a search field, and the signed-in actor from `whoami`. Search is a stub over the same `StudioClient.search` port. It is not a separate index.
 
@@ -55,6 +55,7 @@ src/lib/studio/client.ts  getStudioClient() — mock by default, HTTP when confi
 src/lib/studio/mock.ts    In-memory seed. source: "stub".
 src/lib/studio/http.ts    BFF bridge. No ClickUp credentials.
 src/lib/studio/delivery.ts  Health rollup, same rule as lunarcore-mcp.
+src/lib/studio/schedule.ts  Shoot window dates (this week, upcoming, past).
 ```
 
 `StudioClient` is a read port. Writes stay on lunarcore-mcp (`client_create`, `task_update`, and the rest). Tool payloads here match the MCP `data` objects: `Page<T>` is `{ items, total }`, and `deliveryStatus` returns the MCP `DeliveryStatus` object.
@@ -119,6 +120,10 @@ Failures use `{ "ok": false, "source": "clickup", "error": { "code": "not_found"
 | `GET` | `/v1/members` | `{ items, total }` |
 | `GET` | `/v1/pipeline` | `PipelineSummary` |
 | `GET` | `/v1/search?query&limit` | `{ items, total }` of search hits |
+| `GET` | `/v1/shoots?clientId&projectId&status&from&to&query&limit` | `{ items, total }` of `Shoot` |
+| `GET` | `/v1/shoots/:id` | `{ shoot }` |
+| `GET` | `/v1/reviews?clientId&projectId&status&query&limit` | `{ items, total }` of `Review` |
+| `GET` | `/v1/reviews/:id` | `{ review }` |
 
 Set `STUDIO_HTTP_BASE_URL` to the origin (`http://localhost:8787`). `STUDIO_HTTP_TOKEN`, when set, is sent as `Authorization: Bearer`. That token is for the BFF, not for ClickUp.
 
@@ -127,3 +132,32 @@ STUDIO_SOURCE=http
 STUDIO_HTTP_BASE_URL=http://localhost:8787
 npm run dev
 ```
+
+### Shoots and reviews on the bridge
+
+`/shoots` and `/reviews` call `listShoots`, `getShoot`, `listReviews`, and `getReview` on `StudioClient`. The memory seed answers them with no network. `STUDIO_SOURCE=http` sends the same calls to the BFF. There is still no ClickUp token and no Frame.io token in this app.
+
+lunarcore-mcp does not ship shoot or review tools yet. Until it does, the BFF is the place that turns live ClickUp tasks into `Shoot` records and stores Frame.io links as `Review` records. Suggested mapping, owned by the bridge, not by this console:
+
+| Shoot field | ClickUp, via lunarcore-mcp |
+| --- | --- |
+| `clientId`, `projectId` | Same folder and list as Client and Project |
+| `title` | Task name. Treat a task tagged `shoot`, or a task on a list whose name contains "Shoot", as a production day |
+| `date` | Task due date, as a `YYYY-MM-DD` calendar day |
+| `callTime`, `wrapTime` | Custom fields. ClickUp has no native call time. `HH:mm` in Philippine time |
+| `location` | Custom field, or the first line of the task description |
+| `crewLeadId` | Assignee, resolved through `member_list` |
+| `crewCount` | Custom field. Otherwise `1` |
+| `status` | `confirmed`, `hold`, `wrapped`, or `cancelled` from the ClickUp status name |
+| `crewNotes` | Task description |
+
+`from` and `to` on `GET /v1/shoots` are inclusive UTC days. The console computes them: this week is Monday–Sunday containing today, upcoming is `from` today with no `to`, past is `to` yesterday. The BFF should filter. It does not need to understand the words "this week".
+
+| Review field | Where it lives |
+| --- | --- |
+| `frameUrl` | An `https` Frame.io project or review link, stored on the studio record (a ClickUp task link or custom field is enough) |
+| `status` | `in_review`, `approved`, `changes_requested`, or `waiting`. Studio metadata, not a Frame.io API status |
+| `clientId`, `projectId` | The client folder and project list the cut belongs to |
+| `title`, `notes`, `updatedAt` | The review label, the latest note, and when the record last changed |
+
+The reviews screen only renders `https` URLs and opens them in a new tab. It does not use the Frame.io SDK or OAuth. A BFF that does not implement `/v1/shoots` and `/v1/reviews` will fail those two pages; clients and delivery keep using the routes above them.

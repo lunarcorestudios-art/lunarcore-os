@@ -11,19 +11,25 @@ import type {
   LeadStage,
   ListClientsInput,
   ListProjectsInput,
+  ListReviewsInput,
+  ListShootsInput,
   ListTasksInput,
   Member,
   Page,
   PipelineSummary,
   Project,
   ProposalStatus,
+  Review,
+  ReviewStatus,
   SearchHit,
   SearchInput,
+  Shoot,
+  ShootStatus,
   StudioClient,
   Task,
   WorkspaceContext,
 } from "@/lib/studio/types";
-import { LEAD_STAGES, PROPOSAL_STATUSES } from "@/lib/studio/types";
+import { LEAD_STAGES, PROPOSAL_STATUSES, REVIEW_STATUSES, SHOOT_STATUSES } from "@/lib/studio/types";
 
 const EMPTY_INTEGRATIONS: IntegrationPresence = {
   clickup: { configured: false, present: { apiToken: false, teamId: false } },
@@ -86,6 +92,18 @@ export function createMockStudioClient(env: NodeJS.ProcessEnv = process.env, now
     const task = seed.tasks.find((item) => item.id === id);
     if (!task) throw new StudioNotFound(`No task with id ${id}.`);
     return task;
+  }
+
+  function requireShoot(id: string): Shoot {
+    const shoot = seed.shoots.find((item) => item.id === id);
+    if (!shoot) throw new StudioNotFound(`No shoot with id ${id}.`);
+    return shoot;
+  }
+
+  function requireReview(id: string): Review {
+    const review = seed.reviews.find((item) => item.id === id);
+    if (!review) throw new StudioNotFound(`No review with id ${id}.`);
+    return review;
   }
 
   const client: StudioClient = {
@@ -171,9 +189,51 @@ export function createMockStudioClient(env: NodeJS.ProcessEnv = process.env, now
     async search(input: SearchInput) {
       return paginate(searchSeed(seed, input.query), input.limit);
     },
+    async listShoots(input: ListShootsInput = {}) {
+      if (input.clientId) requireClient(input.clientId);
+      if (input.projectId) requireProject(input.projectId);
+      const query = input.query?.trim();
+      const items = [...seed.shoots]
+        .filter((shoot) => shootMatches(shoot, input, query))
+        .sort(
+          (a, b) => a.date.localeCompare(b.date) || a.callTime.localeCompare(b.callTime) || a.title.localeCompare(b.title),
+        );
+      return paginate(items, input.limit);
+    },
+    async getShoot(id: string) {
+      return requireShoot(id);
+    },
+    async listReviews(input: ListReviewsInput = {}) {
+      if (input.clientId) requireClient(input.clientId);
+      if (input.projectId) requireProject(input.projectId);
+      const query = input.query?.trim();
+      const items = sortByUpdated(seed.reviews).filter((review) => reviewMatches(review, input, query));
+      return paginate(items, input.limit);
+    },
+    async getReview(id: string) {
+      return requireReview(id);
+    },
   };
 
   return client;
+}
+
+function shootMatches(shoot: Shoot, input: ListShootsInput, query: string | undefined): boolean {
+  if (input.clientId && shoot.clientId !== input.clientId) return false;
+  if (input.projectId && shoot.projectId !== input.projectId) return false;
+  if (input.status && shoot.status !== input.status) return false;
+  if (input.from && shoot.date < input.from) return false;
+  if (input.to && shoot.date > input.to) return false;
+  if (query && !matchesAny(query, [shoot.title, shoot.location, shoot.crewNotes])) return false;
+  return true;
+}
+
+function reviewMatches(review: Review, input: ListReviewsInput, query: string | undefined): boolean {
+  if (input.clientId && review.clientId !== input.clientId) return false;
+  if (input.projectId && review.projectId !== input.projectId) return false;
+  if (input.status && review.status !== input.status) return false;
+  if (query && !matchesAny(query, [review.title, review.frameUrl, review.notes])) return false;
+  return true;
 }
 
 function clientMatches(client: Client, query: string): boolean {
@@ -286,11 +346,43 @@ function searchSeed(seed: StudioSeed, query: string): SearchHit[] {
     });
   }
 
+  for (const shoot of seed.shoots) {
+    if (!matchesAny(needle, [shoot.title, shoot.location, shoot.crewNotes])) continue;
+    const client = seed.clients.find((item) => item.id === shoot.clientId);
+    hits.push({
+      kind: "shoot",
+      id: shoot.id,
+      title: shoot.title,
+      snippet: client ? `${client.name} · ${shoot.location}` : shoot.location,
+      score: includesFold(needle, shoot.title) ? 3 : 1,
+    });
+  }
+
+  for (const review of seed.reviews) {
+    if (!matchesAny(needle, [review.title, review.notes, review.frameUrl])) continue;
+    const client = seed.clients.find((item) => item.id === review.clientId);
+    hits.push({
+      kind: "review",
+      id: review.id,
+      title: review.title,
+      snippet: client ? `${client.name} · ${review.status}` : review.status,
+      score: includesFold(needle, review.title) ? 3 : 1,
+    });
+  }
+
   return hits.sort((a, b) => b.score - a.score || a.title.localeCompare(b.title));
 }
 
 export function isClientStatus(value: string | undefined): value is ClientStatus {
   return value === "active" || value === "paused" || value === "prospect" || value === "archived";
+}
+
+export function isShootStatus(value: string | undefined): value is ShootStatus {
+  return (SHOOT_STATUSES as readonly string[]).includes(value ?? "");
+}
+
+export function isReviewStatus(value: string | undefined): value is ReviewStatus {
+  return (REVIEW_STATUSES as readonly string[]).includes(value ?? "");
 }
 
 export function memberName(members: Member[], id: string | undefined): string | null {
