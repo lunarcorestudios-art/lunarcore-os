@@ -2,7 +2,7 @@
   "name": "lunarcore-os",
   "version": "0.1.0",
   "private": true,
-  "description": "Lunarcore Studios OS — internal studio console for clients, delivery, and workspace health.",
+  "description": "Lunarcore Studios OS — internal studio console for clients, delivery, and the rest of the floor.",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

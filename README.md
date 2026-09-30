@@ -1,6 +1,6 @@
 # Lunarcore OS
 
-Internal studio console for [Lunarcore Studios](https://github.com/lunarcorestudios-art). It shows workspace health, clients, and delivery. The screens read a `StudioClient`. They do not talk to ClickUp.
+Internal studio console for [Lunarcore Studios](https://github.com/lunarcorestudios-art). It shows workspace health, clients, and delivery, plus empty shells for the rest of the studio. Live screens read a `StudioClient`. They do not talk to ClickUp. Stub screens do not talk to GoHighLevel, QuickBooks, Frame.io, or an HRIS.
 
 Production data belongs in [lunarcore-mcp](https://github.com/lunarcorestudios-art/lunarcore-mcp), or in a thin BFF in front of it. This web app ships a memory seed so `npm run dev` works with no tokens.
 
@@ -29,6 +29,19 @@ Node.js 20 or newer.
 | `/clients/[id]` | One client and the projects under it |
 | `/delivery` | Projects grouped by `delivery_status` health |
 | `/delivery/[id]` | Milestones, task rollup, and comments for one project |
+| `/shoots` | Shoot schedule shell, under Production. ClickUp and a studio calendar later |
+| `/reviews` | Frame.io review links, under Production |
+| `/pipeline` | GoHighLevel pipeline shell. The home dashboard still shows the seed pipeline |
+| `/people` | People shell: roster, capacity, and time off. HRIS later. `/hris` redirects here |
+| `/finance` | Finance overview. Tabs for quotes, invoices, and payments |
+| `/finance/quotes` | Quotes shell. QuickBooks will own quotes |
+| `/finance/invoices` | Invoices shell. QuickBooks will own invoicing |
+| `/finance/payments` | Payments shell. QuickBooks will own what has been collected |
+| `/settings` | Studio profile placeholder, integration stubs, and portal-app notes |
+| `/staff` | Staff portal shell. Off the main rail. Role gating comes later |
+| `/portal` | Client portal shell. Off the main rail. Role gating comes later |
+
+The module → adapter map lives in `src/components/shell/nav.ts`. Stub routes render empty states only. This app does not take OAuth or SDK dependencies for those adapters.
 
 The shell is the sidebar, a search field, and the signed-in actor from `whoami`. Search is a stub over the same `StudioClient.search` port. It is not a separate index.
 

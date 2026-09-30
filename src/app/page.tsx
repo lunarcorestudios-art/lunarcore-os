@@ -9,7 +9,7 @@ import { LEAD_STAGE_LABEL } from "@/lib/studio/labels";
 import { LEAD_STAGES } from "@/lib/studio/types";
 import { loadDashboard } from "@/lib/studio/view";
 
-export const metadata = { title: "Dashboard" };
+export const metadata = { title: "Home" };
 
 export default async function DashboardPage() {
   const dashboard = await loadDashboard();
