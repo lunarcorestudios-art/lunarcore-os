@@ -3,6 +3,7 @@ import Link from "next/link";
 
 import { DeliveryCard } from "@/components/studio/delivery-card";
 import { EmptyState } from "@/components/studio/empty-state";
+import { MissingRecord } from "@/components/studio/missing-record";
 import { PageHeader } from "@/components/studio/page-header";
 import { StatusBadge } from "@/components/studio/status-badge";
 import { getStudioClient } from "@/lib/studio/client";
@@ -22,7 +23,13 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
 export default async function ClientDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const detail = await loadClientDetail(id);
+  let detail;
+  try {
+    detail = await loadClientDetail(id);
+  } catch (error) {
+    if (error instanceof StudioNotFound) return <MissingRecord kind="client" />;
+    throw error;
+  }
   const { client } = detail;
 
   return (

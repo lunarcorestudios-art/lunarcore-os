@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { HealthBadge } from "@/components/studio/health-badge";
+import { MissingRecord } from "@/components/studio/missing-record";
 import { PageHeader } from "@/components/studio/page-header";
 import { StatusBadge } from "@/components/studio/status-badge";
 import { TaskMeter } from "@/components/studio/task-meter";
@@ -26,7 +27,13 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
 export default async function DeliveryDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const detail = await loadDeliveryDetail(id);
+  let detail;
+  try {
+    detail = await loadDeliveryDetail(id);
+  } catch (error) {
+    if (error instanceof StudioNotFound) return <MissingRecord kind="project" />;
+    throw error;
+  }
   const { delivery } = detail;
   const { project, client } = delivery;
   const projectDue = duePhrase(project.dueDate);

@@ -1,10 +1,7 @@
 import "server-only";
 
-import { notFound } from "next/navigation";
-
 import { compareHealth, worstHealth } from "@/lib/format";
 import { getStudioClient } from "@/lib/studio/client";
-import { StudioNotFound } from "@/lib/studio/errors";
 import { isClientStatus } from "@/lib/studio/mock";
 import type {
   Actor,
@@ -127,19 +124,14 @@ export async function loadDirectory(input: {
 
 export async function loadClientDetail(id: string): Promise<ClientDetailModel> {
   const studio = await getStudioClient();
-  try {
-    const [client, projects, members] = await Promise.all([
-      studio.getClient(id),
-      studio.listProjects({ clientId: id, limit: 200 }),
-      studio.listMembers(),
-    ]);
-    const deliveries = await Promise.all(projects.items.map((project) => studio.deliveryStatus(project.id)));
-    deliveries.sort((a, b) => compareHealth(a.health, b.health) || a.project.name.localeCompare(b.project.name));
-    return { client, deliveries, members: members.items };
-  } catch (error) {
-    if (error instanceof StudioNotFound) notFound();
-    throw error;
-  }
+  const [client, projects, members] = await Promise.all([
+    studio.getClient(id),
+    studio.listProjects({ clientId: id, limit: 200 }),
+    studio.listMembers(),
+  ]);
+  const deliveries = await Promise.all(projects.items.map((project) => studio.deliveryStatus(project.id)));
+  deliveries.sort((a, b) => compareHealth(a.health, b.health) || a.project.name.localeCompare(b.project.name));
+  return { client, deliveries, members: members.items };
 }
 
 export async function loadDeliveryIndex(health?: string): Promise<DeliveryIndexModel> {
@@ -157,34 +149,28 @@ export async function loadDeliveryIndex(health?: string): Promise<DeliveryIndexM
 
 export async function loadDeliveryDetail(id: string): Promise<DeliveryDetailModel> {
   const studio = await getStudioClient();
-  try {
-    const [delivery, milestones, tasks, members] = await Promise.all([
-      studio.deliveryStatus(id),
-      studio.listMilestones(id),
-      studio.listTasks({ projectId: id, limit: 200 }),
-      studio.listMembers(),
-    ]);
-    const detailed = await Promise.all(tasks.items.map((task) => studio.getTask(task.id)));
-    const order: Record<string, number> = { blocked: 0, in_progress: 1, todo: 2, done: 3 };
-    detailed.sort(
-      (a, b) =>
-        (order[a.task.status] ?? 9) - (order[b.task.status] ?? 9) || a.task.title.localeCompare(b.task.title),
-    );
-    const names = new Map(members.items.map((member) => [member.id, member.name]));
-    return {
-      delivery,
-      milestones: milestones.items,
-      tasks: detailed.map((record) => ({
-        ...record,
-        assigneeName: record.task.assigneeId ? (names.get(record.task.assigneeId) ?? null) : null,
-      })),
-      commentsByAuthor: names,
-      members: members.items,
-    };
-  } catch (error) {
-    if (error instanceof StudioNotFound) notFound();
-    throw error;
-  }
+  const [delivery, milestones, tasks, members] = await Promise.all([
+    studio.deliveryStatus(id),
+    studio.listMilestones(id),
+    studio.listTasks({ projectId: id, limit: 200 }),
+    studio.listMembers(),
+  ]);
+  const detailed = await Promise.all(tasks.items.map((task) => studio.getTask(task.id)));
+  const order: Record<string, number> = { blocked: 0, in_progress: 1, todo: 2, done: 3 };
+  detailed.sort(
+    (a, b) => (order[a.task.status] ?? 9) - (order[b.task.status] ?? 9) || a.task.title.localeCompare(b.task.title),
+  );
+  const names = new Map(members.items.map((member) => [member.id, member.name]));
+  return {
+    delivery,
+    milestones: milestones.items,
+    tasks: detailed.map((record) => ({
+      ...record,
+      assigneeName: record.task.assigneeId ? (names.get(record.task.assigneeId) ?? null) : null,
+    })),
+    commentsByAuthor: names,
+    members: members.items,
+  };
 }
 
 function clientRows(clients: Client[], deliveries: DeliveryStatus[]): ClientRow[] {
