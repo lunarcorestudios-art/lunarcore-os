@@ -60,7 +60,7 @@ export function SearchDialog() {
       <Button
         type="button"
         variant="outline"
-        className="h-10 min-w-0 flex-1 justify-start px-3 text-muted-foreground sm:max-w-sm sm:flex-none"
+        className="h-10 min-w-0 flex-1 justify-start rounded-full px-3 text-muted-foreground sm:max-w-sm sm:flex-none"
         onClick={() => setOpen(true)}
       >
         <Search />
@@ -82,7 +82,7 @@ export function SearchDialog() {
         <DialogContent className="top-[12vh] p-0">
           <div className="border-b border-border px-4 pt-4 pb-3">
             <DialogTitle className="sr-only">Search the studio</DialogTitle>
-            <DialogDescription className="mb-3 text-xs tracking-[0.14em] uppercase">
+            <DialogDescription className="mb-3 text-xs font-medium text-muted-foreground">
               Search stub · clients, projects, tasks
             </DialogDescription>
             <label htmlFor={inputId} className="sr-only">
@@ -110,13 +110,13 @@ export function SearchDialog() {
                     <Link
                       href={hit.href}
                       onClick={() => setOpen(false)}
-                      className="flex items-baseline justify-between gap-4 rounded-md px-3 py-2.5 hover:bg-muted"
+                      className="flex items-baseline justify-between gap-4 rounded-lg px-3 py-2.5 transition-colors hover:bg-tint-soft"
                     >
                       <span className="min-w-0">
                         <span className="block truncate text-sm">{hit.title}</span>
                         <span className="block truncate text-xs text-muted-foreground">{hit.snippet}</span>
                       </span>
-                      <span className="shrink-0 text-[0.65rem] tracking-[0.14em] text-muted-foreground uppercase">
+                      <span className="shrink-0 text-[0.65rem] font-medium text-muted-foreground">
                         {hit.kind}
                       </span>
                     </Link>

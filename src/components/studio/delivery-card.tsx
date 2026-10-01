@@ -20,16 +20,16 @@ export function DeliveryCard({
   const projectDue = duePhrase(project.dueDate);
 
   return (
-    <article className="rounded-lg border border-border bg-card">
+    <article className="rounded-lg border border-border bg-card shadow-[var(--shadow)]">
       <div className="flex items-start justify-between gap-4 px-5 py-4">
         <div className="min-w-0">
           <p className="text-xs text-muted-foreground">
-            <Link href={`/clients/${client.id}`} className="hover:text-foreground">
+            <Link href={`/clients/${client.id}`} className="transition-colors hover:text-accent">
               {client.name}
             </Link>
           </p>
-          <h2 className="mt-1 font-display text-[1.65rem] leading-tight tracking-tight">
-            <Link href={`/delivery/${project.id}`} className="hover:text-accent">
+          <h2 className="mt-1 font-display text-xl leading-tight font-semibold tracking-tight">
+            <Link href={`/delivery/${project.id}`} className="transition-colors hover:text-accent">
               {project.name}
             </Link>
           </h2>
@@ -42,7 +42,7 @@ export function DeliveryCard({
 
       {tasks.blocked.length > 0 ? (
         <div className="mx-5 mb-4 rounded-md border border-danger/30 bg-danger/10 px-4 py-3">
-          <p className="text-[0.68rem] font-medium tracking-[0.16em] text-danger uppercase">Blocked work</p>
+          <p className="text-xs font-medium text-danger">Blocked work</p>
           <ul className="mt-1.5 space-y-1 text-sm">
             {tasks.blocked.map((task) => (
               <li key={task.id}>
@@ -58,9 +58,7 @@ export function DeliveryCard({
       {compact ? null : (
         <div className="grid gap-5 border-t border-border px-5 py-4 sm:grid-cols-2">
           <div>
-            <p className="text-[0.68rem] font-medium tracking-[0.16em] text-muted-foreground uppercase">
-              Next milestone
-            </p>
+            <p className="text-xs font-medium text-muted-foreground">Next milestone</p>
             {next ? (
               <>
                 <p className="mt-1 text-sm">{next.name}</p>

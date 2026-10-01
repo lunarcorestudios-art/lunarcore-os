@@ -24,14 +24,14 @@ export default async function DashboardPage() {
         actions={
           <Link
             href="/delivery"
-            className="text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+            className="text-sm font-medium text-accent underline-offset-4 transition-colors hover:underline"
           >
             Open delivery
           </Link>
         }
       />
 
-      <dl className="grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-border bg-border sm:grid-cols-4">
+      <dl className="grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-border bg-border shadow-[var(--shadow)] sm:grid-cols-4">
         <Metric label="Clients" value={workspace.counts.clients} hint="Client Work folders" />
         <Metric label="Projects" value={workspace.counts.projects} hint="Lists under those clients" />
         <Metric label="Blocked" value={dashboard.attention.filter((item) => item.health === "blocked").length} hint="Needs a producer" />
@@ -60,10 +60,10 @@ export default async function DashboardPage() {
         <div className="space-y-8">
           <section>
             <SectionLabel>Recent clients</SectionLabel>
-            <ul className="divide-y divide-border rounded-lg border border-border bg-card">
+            <ul className="divide-y divide-border overflow-hidden rounded-lg border border-border bg-card shadow-[var(--shadow)]">
               {dashboard.recentClients.map((row) => (
                 <li key={row.client.id}>
-                  <Link href={`/clients/${row.client.id}`} className="flex items-center justify-between gap-3 px-4 py-3 hover:bg-muted/70">
+                  <Link href={`/clients/${row.client.id}`} className="flex items-center justify-between gap-3 px-4 py-3 transition-colors hover:bg-tint-soft">
                     <span className="min-w-0">
                       <span className="block truncate text-sm">{row.client.name}</span>
                       <span className="block text-xs text-muted-foreground">
@@ -87,8 +87,8 @@ export default async function DashboardPage() {
 function Metric({ label, value, hint }: { label: string; value: number; hint: string }) {
   return (
     <div className="bg-card px-4 py-4 sm:px-5">
-      <dt className="text-[0.68rem] font-medium tracking-[0.16em] text-muted-foreground uppercase">{label}</dt>
-      <dd className="mt-2 font-display text-4xl tabular-nums tracking-tight">{value}</dd>
+      <dt className="text-xs font-medium text-muted-foreground">{label}</dt>
+      <dd className="mt-2 font-display text-3xl font-semibold tabular-nums tracking-tight">{value}</dd>
       <dd className="mt-1 text-xs text-muted-foreground">{hint}</dd>
     </div>
   );
@@ -96,17 +96,17 @@ function Metric({ label, value, hint }: { label: string; value: number; hint: st
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <h2 className="mb-3 text-[0.68rem] font-medium tracking-[0.18em] text-muted-foreground uppercase">{children}</h2>
+    <h2 className="mb-3 text-sm font-semibold tracking-tight text-foreground">{children}</h2>
   );
 }
 
 function PipelinePanel({ pipeline }: { pipeline: Awaited<ReturnType<typeof loadDashboard>>["pipeline"] }) {
   return (
-    <section className="rounded-lg border border-border bg-card px-4 py-4">
-      <h2 className="text-[0.68rem] font-medium tracking-[0.18em] text-muted-foreground uppercase">Pipeline</h2>
+    <section className="rounded-lg border border-border bg-card px-4 py-4 shadow-[var(--shadow)]">
+      <h2 className="text-sm font-semibold tracking-tight text-foreground">Pipeline</h2>
       {pipeline.available ? (
         <div className="mt-3 space-y-4">
-          <p className="font-display text-3xl tabular-nums tracking-tight">{pipeline.summary.leads.total}</p>
+          <p className="font-display text-3xl font-semibold tabular-nums tracking-tight">{pipeline.summary.leads.total}</p>
           <p className="-mt-2 text-xs text-muted-foreground">
             {pipeline.summary.leads.total === 1 ? "Lead" : "Leads"}
           </p>

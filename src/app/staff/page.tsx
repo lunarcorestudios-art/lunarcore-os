@@ -37,7 +37,7 @@ export default function StaffPortalPage() {
       <ul className="grid gap-4 lg:grid-cols-3">
         {SLOTS.map((slot) => (
           <li key={slot.title}>
-            <p className="mb-3 text-[0.68rem] font-medium tracking-[0.16em] text-muted-foreground uppercase">
+            <p className="mb-3 text-sm font-semibold tracking-tight text-foreground">
               {slot.title}
             </p>
             <EmptyState title={slot.heading} body={slot.body} />

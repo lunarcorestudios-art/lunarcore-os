@@ -35,24 +35,24 @@ export default function FinancePage() {
       </div>
       <ul className="mt-6 grid gap-3 sm:grid-cols-3">
         <li>
-          <Link href="/finance/quotes" className="block rounded-lg border border-border bg-card px-4 py-4 hover:bg-muted/60">
-            <span className="block text-[0.68rem] font-medium tracking-[0.16em] text-muted-foreground uppercase">
+          <Link href="/finance/quotes" className="block rounded-lg border border-border bg-card px-4 py-4 shadow-[var(--shadow)] transition-colors hover:bg-tint-soft">
+            <span className="block text-xs font-medium text-muted-foreground">
               Quotes
             </span>
             <span className="mt-2 block text-sm text-muted-foreground">Proposals before they become invoices.</span>
           </Link>
         </li>
         <li>
-          <Link href="/finance/invoices" className="block rounded-lg border border-border bg-card px-4 py-4 hover:bg-muted/60">
-            <span className="block text-[0.68rem] font-medium tracking-[0.16em] text-muted-foreground uppercase">
+          <Link href="/finance/invoices" className="block rounded-lg border border-border bg-card px-4 py-4 shadow-[var(--shadow)] transition-colors hover:bg-tint-soft">
+            <span className="block text-xs font-medium text-muted-foreground">
               Invoices
             </span>
             <span className="mt-2 block text-sm text-muted-foreground">What clients owe, once QuickBooks is connected.</span>
           </Link>
         </li>
         <li>
-          <Link href="/finance/payments" className="block rounded-lg border border-border bg-card px-4 py-4 hover:bg-muted/60">
-            <span className="block text-[0.68rem] font-medium tracking-[0.16em] text-muted-foreground uppercase">
+          <Link href="/finance/payments" className="block rounded-lg border border-border bg-card px-4 py-4 shadow-[var(--shadow)] transition-colors hover:bg-tint-soft">
+            <span className="block text-xs font-medium text-muted-foreground">
               Payments
             </span>
             <span className="mt-2 block text-sm text-muted-foreground">What has been collected, once QuickBooks is connected.</span>

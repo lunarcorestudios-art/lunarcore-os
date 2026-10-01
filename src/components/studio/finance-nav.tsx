@@ -1,6 +1,4 @@
-import Link from "next/link";
-
-import { cn } from "@/lib/utils";
+import { FilterPill } from "@/components/ui/filter-pill";
 
 const LINKS = [
   { id: "overview", href: "/finance", label: "Overview" },
@@ -12,24 +10,11 @@ const LINKS = [
 export function FinanceNav({ current }: { current: (typeof LINKS)[number]["id"] }) {
   return (
     <nav aria-label="Finance" className="mb-8 flex flex-wrap gap-1.5">
-      {LINKS.map((link) => {
-        const active = link.id === current;
-        return (
-          <Link
-            key={link.id}
-            href={link.href}
-            aria-current={active ? "page" : undefined}
-            className={cn(
-              "rounded-full border px-3 py-1.5 text-xs tracking-wide",
-              active
-                ? "border-foreground bg-foreground text-background"
-                : "border-border text-muted-foreground hover:text-foreground",
-            )}
-          >
-            {link.label}
-          </Link>
-        );
-      })}
+      {LINKS.map((link) => (
+        <FilterPill key={link.id} href={link.href} active={link.id === current}>
+          {link.label}
+        </FilterPill>
+      ))}
     </nav>
   );
 }

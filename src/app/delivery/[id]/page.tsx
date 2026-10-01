@@ -46,11 +46,11 @@ export default async function DeliveryDetailPage({ params }: { params: Promise<{
   return (
     <>
       <p className="mb-4 text-sm text-muted-foreground">
-        <Link href="/delivery" className="hover:text-foreground">
+        <Link href="/delivery" className="font-medium text-accent underline-offset-4 hover:underline">
           Delivery
         </Link>
         <span aria-hidden="true"> · </span>
-        <Link href={`/clients/${client.id}`} className="hover:text-foreground">
+        <Link href={`/clients/${client.id}`} className="font-medium text-accent underline-offset-4 hover:underline">
           {client.name}
         </Link>
       </p>
@@ -73,7 +73,7 @@ export default async function DeliveryDetailPage({ params }: { params: Promise<{
 
       <div className="grid gap-8 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.2fr)]">
         <section>
-          <h2 className="mb-3 text-[0.68rem] font-medium tracking-[0.18em] text-muted-foreground uppercase">
+          <h2 className="mb-3 text-sm font-semibold tracking-tight text-foreground">
             Milestones
           </h2>
           {detail.milestones.length === 0 ? (
@@ -84,10 +84,10 @@ export default async function DeliveryDetailPage({ params }: { params: Promise<{
                 const phrase = duePhrase(milestone.dueDate);
                 const late = milestone.status !== "done" && isOverdue(milestone.dueDate);
                 return (
-                  <li key={milestone.id} className="rounded-lg border border-border bg-card px-4 py-3">
+                  <li key={milestone.id} className="rounded-lg border border-border bg-card shadow-[var(--shadow)] px-4 py-3">
                     <div className="flex items-start justify-between gap-3">
                       <p className="text-sm">{milestone.name}</p>
-                      <span className="text-[0.68rem] tracking-[0.14em] text-muted-foreground uppercase">
+                      <span className="text-xs text-muted-foreground">
                         {MILESTONE_STATUS_LABEL[milestone.status]}
                       </span>
                     </div>
@@ -105,23 +105,23 @@ export default async function DeliveryDetailPage({ params }: { params: Promise<{
               })}
             </ol>
           )}
-          <div className="mt-6 rounded-lg border border-border bg-card px-4 py-4">
+          <div className="mt-6 rounded-lg border border-border bg-card shadow-[var(--shadow)] px-4 py-4">
             <TaskMeter byStatus={delivery.tasks.byStatus} total={delivery.tasks.total} />
           </div>
         </section>
 
         <section>
-          <h2 className="mb-3 text-[0.68rem] font-medium tracking-[0.18em] text-muted-foreground uppercase">Tasks</h2>
+          <h2 className="mb-3 text-sm font-semibold tracking-tight text-foreground">Tasks</h2>
           <div className="space-y-6">
             {groups.map((group) => (
               <div key={group.status}>
                 <h3 className="mb-2 text-sm text-muted-foreground">{TASK_STATUS_LABEL[group.status]}</h3>
                 <ul className="space-y-3">
                   {group.tasks.map((record) => (
-                    <li id={record.task.id} key={record.task.id} className="scroll-mt-24 rounded-lg border border-border bg-card px-4 py-3">
+                    <li id={record.task.id} key={record.task.id} className="scroll-mt-24 rounded-lg border border-border bg-card shadow-[var(--shadow)] px-4 py-3">
                       <div className="flex items-start justify-between gap-3">
                         <p className="text-sm">{record.task.title}</p>
-                        <span className="shrink-0 text-[0.68rem] tracking-[0.14em] text-muted-foreground uppercase">
+                        <span className="shrink-0 text-xs text-muted-foreground">
                           {PRIORITY_LABEL[record.task.priority]}
                         </span>
                       </div>

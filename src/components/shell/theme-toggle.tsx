@@ -1,23 +1,41 @@
 "use client";
 
-import { Moon, Sun } from "lucide-react";
-import { useTheme } from "next-themes";
+import { useStudioTheme } from "@/components/theme-provider";
+import { cn } from "@/lib/utils";
 
-import { Button } from "@/components/ui/button";
+const OPTIONS = [
+  { id: "daylight", label: "Daylight" },
+  { id: "charcoal", label: "Charcoal" },
+] as const;
 
 export function ThemeToggle() {
-  const { resolvedTheme, setTheme } = useTheme();
+  const { theme, setTheme } = useStudioTheme();
 
   return (
-    <Button
-      type="button"
-      variant="ghost"
-      size="icon"
-      aria-label="Toggle color theme"
-      onClick={() => setTheme(resolvedTheme === "light" ? "dark" : "light")}
+    <div
+      role="group"
+      aria-label="Color theme"
+      className="inline-flex shrink-0 rounded-full border border-border bg-muted p-0.5"
     >
-      <Sun className="hidden dark:block" />
-      <Moon className="dark:hidden" />
-    </Button>
+      {OPTIONS.map((option) => {
+        const selected = theme === option.id;
+        return (
+          <button
+            key={option.id}
+            type="button"
+            aria-pressed={selected}
+            onClick={() => setTheme(option.id)}
+            className={cn(
+              "rounded-full px-2.5 py-1 text-xs font-medium transition-colors sm:px-3",
+              selected
+                ? "bg-card text-foreground shadow-[var(--shadow)]"
+                : "text-muted-foreground hover:text-foreground",
+            )}
+          >
+            {option.label}
+          </button>
+        );
+      })}
+    </div>
   );
 }

@@ -12,7 +12,7 @@ export function TaskMeter({ byStatus, total }: { byStatus: Record<TaskStatus, nu
   return (
     <div>
       <div className="flex items-baseline justify-between gap-3">
-        <p className="text-[0.68rem] font-medium tracking-[0.16em] text-muted-foreground uppercase">Tasks</p>
+        <p className="text-xs font-medium text-muted-foreground">Tasks</p>
         <p className="text-sm tabular-nums text-muted-foreground">{total}</p>
       </div>
       <div className="mt-2 flex h-1.5 overflow-hidden rounded-full bg-muted" aria-hidden="true">

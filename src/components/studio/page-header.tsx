@@ -10,13 +10,13 @@ export function PageHeader({
   actions?: React.ReactNode;
 }) {
   return (
-    <header className="mb-8 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+    <header className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
       <div className="max-w-2xl">
-        <p className="text-[0.68rem] font-medium tracking-[0.2em] text-muted-foreground uppercase">{kicker}</p>
-        <h1 className="mt-2 font-display text-[2.4rem] leading-[1.02] tracking-tight text-balance sm:text-5xl">
+        <p className="text-xs font-medium text-muted-foreground">{kicker}</p>
+        <h1 className="mt-1.5 font-display text-[1.75rem] leading-tight font-semibold tracking-tight text-balance sm:text-4xl">
           {title}
         </h1>
-        {lede ? <p className="mt-3 max-w-xl text-base leading-relaxed text-muted-foreground">{lede}</p> : null}
+        {lede ? <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground sm:text-base">{lede}</p> : null}
       </div>
       {actions ? <div className="flex shrink-0 items-center gap-2">{actions}</div> : null}
     </header>
